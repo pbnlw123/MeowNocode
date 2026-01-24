@@ -78,7 +78,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
         id: 'builtin-flower',
         title: '鲜花',
         artist: '回春丹',
-        musicUrl: 'https://pic.oneloved.top/2025-08/回春丹 - 鲜花_1755699293512.flac', // 假设的音频文件路径
+        musicUrl: 'https://pic.lover.nyc.mn/2025-08/回春丹 - 鲜花_1755699293512.flac', // 假设的音频文件路径
         coverUrl: '/images/xh.jpg',
         lyrics: 'builtin',
         isBuiltin: true
@@ -129,7 +129,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
       };
 
       const updatedSongs = [...(musicConfig.customSongs || []), newSong];
-      updateMusicConfig({ 
+      updateMusicConfig({
         customSongs: updatedSongs,
         lastModified: new Date().toISOString()
       });
@@ -202,7 +202,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
         return song;
       }));
 
-      updateMusicConfig({ 
+      updateMusicConfig({
         customSongs: updatedSongs,
         lastModified: new Date().toISOString()
       });
@@ -230,18 +230,18 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
       if (songToDelete.audioFile) {
         await fileStorageService.deleteFile(songToDelete.audioFile);
       }
-      
+
       // 删除图片文件
       if (songToDelete.imageFile) {
         await fileStorageService.deleteFile(songToDelete.imageFile);
       }
-      
+
       // 然后删除歌曲记录
-      const updatedSongs = (musicConfig.customSongs || []).filter(song => 
+      const updatedSongs = (musicConfig.customSongs || []).filter(song =>
         !(song.title === songToDelete.title && song.artist === songToDelete.artist)
       );
 
-      updateMusicConfig({ 
+      updateMusicConfig({
         customSongs: updatedSongs,
         lastModified: new Date().toISOString()
       });
@@ -314,7 +314,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
       const chunks = Math.ceil(file.size / chunkSize);
       let currentChunk = 0;
       const base64Chunks = [];
-      
+
       // 显示处理进度
       toast.loading(`正在处理大文件... (0/${chunks})`, { id: 'processing-large-file' });
 
@@ -322,7 +322,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
         const start = currentChunk * chunkSize;
         const end = Math.min(start + chunkSize, file.size);
         const chunk = file.slice(start, end);
-        
+
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
@@ -330,25 +330,25 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
             const base64Content = e.target.result.split(',')[1];
             base64Chunks[currentChunk] = base64Content;
             currentChunk++;
-            
+
             // 更新进度
             const progress = Math.round((currentChunk / chunks) * 100);
             toast.loading(`正在处理大文件... (${currentChunk}/${chunks}) ${progress}%`, { id: 'processing-large-file' });
-            
+
             if (currentChunk < chunks) {
               // 继续读取下一块，让出主线程
               setTimeout(readChunk, 0);
             } else {
               // 所有块读取完成，合并结果
               const completeBase64 = `data:${file.type};base64,${base64Chunks.join('')}`;
-              
+
               resolve({
                 ...fileInfo,
                 data: completeBase64,
                 base64Data: completeBase64,
                 file: null
               });
-              
+
               toast.success('大文件处理完成', { id: 'processing-large-file' });
             }
           } catch (error) {
@@ -356,12 +356,12 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
             reject(error);
           }
         };
-        
+
         reader.onerror = () => {
           toast.error('文件读取失败', { id: 'processing-large-file' });
           reject(new Error('文件读取失败'));
         };
-        
+
         reader.readAsDataURL(chunk);
       };
 
@@ -393,7 +393,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
     // 创建对象URL用于预览
     const url = URL.createObjectURL(file);
     addUrlToCleanup(url);
-    
+
     // 存储文件信息，稍后会自动上传到S3
     const fileInfo = {
       file: file,
@@ -409,13 +409,13 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
       [type === 'audio' ? 'musicUrl' : 'coverUrl']: url,
       [type === 'audio' ? 'audioFile' : 'imageFile']: fileInfo
     }));
-    
+
     // 显示文件选择提示
     const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
     toast.success(`文件已选择 (${fileSizeInMB}MB)，保存时将自动上传到S3`);
   };
 
-  
+
   // 从Base64数据重新创建Blob和URL（优化大文件处理）
   const createBlobFromBase64 = (base64Data, mimeType) => {
     try {
@@ -427,7 +427,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
 
       // 移除Base64前缀（如果有）
       const base64Content = base64Data.split(',')[1] || base64Data;
-      
+
       // 对于大文件，使用流式处理
       if (base64Content.length > 50 * 1024 * 1024) { // 50MB以上使用流式处理
         return createBlobFromBase64InChunks(base64Content, mimeType);
@@ -439,21 +439,21 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
           try {
             const byteCharacters = atob(base64Content);
             const byteNumbers = new Array(byteCharacters.length);
-            
+
             // 使用分块处理避免阻塞主线程
             const chunkSize = 65536; // 64KB chunks
             let processed = 0;
-            
+
             const processChunk = () => {
               const start = processed;
               const end = Math.min(start + chunkSize, byteCharacters.length);
-              
+
               for (let i = start; i < end; i++) {
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
               }
-              
+
               processed = end;
-              
+
               if (processed < byteCharacters.length) {
                 // 继续处理下一块，让出主线程
                 setTimeout(processChunk, 0);
@@ -466,7 +466,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
                 resolve(url);
               }
             };
-            
+
             // 开始处理
             processChunk();
           } catch (error) {
@@ -487,7 +487,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
       const chunkSize = 65536; // 64KB chunks
       const totalLength = base64Content.length;
       let processed = 0;
-      
+
       // 显示处理进度
       toast.loading('正在恢复大文件...', { id: 'restoring-large-file' });
 
@@ -496,24 +496,24 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
           const start = processed;
           const end = Math.min(start + chunkSize, totalLength);
           const chunk = base64Content.slice(start, end);
-          
+
           // 解码当前块
           const byteCharacters = atob(chunk);
           const byteNumbers = new Array(byteCharacters.length);
-          
+
           for (let i = 0; i < byteCharacters.length; i++) {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
           }
-          
+
           // 创建当前块的Blob
           const chunkBlob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
-          
+
           processed = end;
-          
+
           // 更新进度
           const progress = Math.round((processed / totalLength) * 100);
           toast.loading(`正在恢复大文件... ${progress}%`, { id: 'restoring-large-file' });
-          
+
           if (processed < totalLength) {
             // 继续处理下一块，让出主线程
             setTimeout(processChunk, 0);
@@ -540,7 +540,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
   const regenerateLocalUrls = async (songs) => {
     const processedSongs = await Promise.all(songs.map(async (song) => {
       const updatedSong = { ...song };
-      
+
       // 处理音频文件
       if (song.audioFile && song.audioFile.storageType === 's3') {
         try {
@@ -553,7 +553,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
           updatedSong.musicUrl = '';
         }
       }
-      
+
       // 处理图片文件
       if (song.imageFile && song.imageFile.storageType === 's3') {
         try {
@@ -566,10 +566,10 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
           updatedSong.coverUrl = '/images/default-music-cover.svg';
         }
       }
-      
+
       return updatedSong;
     }));
-    
+
     return processedSongs;
   };
 
@@ -610,133 +610,133 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
                 添加歌曲
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 shadow-xl">
-            <DialogHeader>
-              <DialogTitle>{editingSong ? '编辑歌曲' : '添加歌曲'}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              {/* 歌曲名称 */}
-              <div className="space-y-2">
-                <Label htmlFor="title">歌曲名称 *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="输入歌曲名称"
-                />
-              </div>
-
-              {/* 歌手名称 */}
-              <div className="space-y-2">
-                <Label htmlFor="artist">歌手名称</Label>
-                <Input
-                  id="artist"
-                  value={formData.artist}
-                  onChange={(e) => setFormData(prev => ({ ...prev, artist: e.target.value }))}
-                  placeholder="输入歌手名称"
-                />
-              </div>
-
-              {/* 歌曲URL */}
-              <div className="space-y-2">
-                <Label htmlFor="musicUrl">歌曲URL</Label>
-                <div className="flex gap-2">
+            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 shadow-xl">
+              <DialogHeader>
+                <DialogTitle>{editingSong ? '编辑歌曲' : '添加歌曲'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {/* 歌曲名称 */}
+                <div className="space-y-2">
+                  <Label htmlFor="title">歌曲名称 *</Label>
                   <Input
-                    id="musicUrl"
-                    value={formData.musicUrl}
-                    onChange={(e) => setFormData(prev => ({ ...prev, musicUrl: e.target.value }))}
-                    placeholder="输入歌曲URL或选择本地文件"
-                    className="flex-1"
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="输入歌曲名称"
                   />
-                  <input
-                    type="file"
-                    accept="audio/*"
-                    onChange={(e) => handleFileUpload(e, 'audio')}
-                    className="hidden"
-                    id="audio-upload"
+                </div>
+
+                {/* 歌手名称 */}
+                <div className="space-y-2">
+                  <Label htmlFor="artist">歌手名称</Label>
+                  <Input
+                    id="artist"
+                    value={formData.artist}
+                    onChange={(e) => setFormData(prev => ({ ...prev, artist: e.target.value }))}
+                    placeholder="输入歌手名称"
                   />
+                </div>
+
+                {/* 歌曲URL */}
+                <div className="space-y-2">
+                  <Label htmlFor="musicUrl">歌曲URL</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="musicUrl"
+                      value={formData.musicUrl}
+                      onChange={(e) => setFormData(prev => ({ ...prev, musicUrl: e.target.value }))}
+                      placeholder="输入歌曲URL或选择本地文件"
+                      className="flex-1"
+                    />
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => handleFileUpload(e, 'audio')}
+                      className="hidden"
+                      id="audio-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('audio-upload').click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 封面URL */}
+                <div className="space-y-2">
+                  <Label htmlFor="coverUrl">封面URL</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="coverUrl"
+                      value={formData.coverUrl}
+                      onChange={(e) => setFormData(prev => ({ ...prev, coverUrl: e.target.value }))}
+                      placeholder="输入封面URL或选择本地文件"
+                      className="flex-1"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'image')}
+                      className="hidden"
+                      id="cover-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('cover-upload').click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 歌词内容 */}
+                <div className="space-y-2">
+                  <Label htmlFor="lyrics">歌词内容</Label>
+                  <Textarea
+                    id="lyrics"
+                    value={formData.lyrics}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lyrics: e.target.value }))}
+                    placeholder="输入歌词内容（每行一句歌词）"
+                    rows={6}
+                  />
+                  <p className="text-xs text-gray-500">
+                    提示：直接输入歌词文本，每行一句歌词。系统会自动处理时间轴。<br />
+                    📁 音频文件将自动上传到S3存储，支持无损音乐格式。
+                  </p>
+                </div>
+
+                {/* 操作按钮 */}
+                <div className="flex gap-2 pt-4">
                   <Button
-                    type="button"
                     variant="outline"
-                    size="sm"
-                    onClick={() => document.getElementById('audio-upload').click()}
+                    onClick={() => {
+                      setIsAddDialogOpen(false);
+                      setEditingSong(null);
+                      resetForm();
+                    }}
+                    className="flex-1"
                   >
-                    <Upload className="h-4 w-4" />
+                    取消
+                  </Button>
+                  <Button
+                    onClick={editingSong ? handleUpdateSong : handleAddSong}
+                    className="flex-1"
+                  >
+                    {editingSong ? '更新' : '添加'}
                   </Button>
                 </div>
               </div>
-
-              {/* 封面URL */}
-              <div className="space-y-2">
-                <Label htmlFor="coverUrl">封面URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="coverUrl"
-                    value={formData.coverUrl}
-                    onChange={(e) => setFormData(prev => ({ ...prev, coverUrl: e.target.value }))}
-                    placeholder="输入封面URL或选择本地文件"
-                    className="flex-1"
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, 'image')}
-                    className="hidden"
-                    id="cover-upload"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => document.getElementById('cover-upload').click()}
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* 歌词内容 */}
-              <div className="space-y-2">
-                <Label htmlFor="lyrics">歌词内容</Label>
-                <Textarea
-                  id="lyrics"
-                  value={formData.lyrics}
-                  onChange={(e) => setFormData(prev => ({ ...prev, lyrics: e.target.value }))}
-                  placeholder="输入歌词内容（每行一句歌词）"
-                  rows={6}
-                />
-                <p className="text-xs text-gray-500">
-                  提示：直接输入歌词文本，每行一句歌词。系统会自动处理时间轴。<br />
-                  📁 音频文件将自动上传到S3存储，支持无损音乐格式。
-                </p>
-              </div>
-
-              {/* 操作按钮 */}
-              <div className="flex gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsAddDialogOpen(false);
-                    setEditingSong(null);
-                    resetForm();
-                  }}
-                  className="flex-1"
-                >
-                  取消
-                </Button>
-                <Button
-                  onClick={editingSong ? handleUpdateSong : handleAddSong}
-                  className="flex-1"
-                >
-                  {editingSong ? '更新' : '添加'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
         </div>
 
-      {/* 音乐列表 */}
+        {/* 音乐列表 */}
         {isLoading ? (
           <div className="text-center py-8 text-gray-500">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
@@ -759,7 +759,7 @@ export default function MusicListManager({ musicConfig, updateMusicConfig }) {
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">{song.title}</div>
                   <div className="text-xs text-gray-500 truncate">{song.artist}</div>
-                  </div>
+                </div>
                 {!song.isBuiltin && (
                   <div className="flex gap-1">
                     <Button

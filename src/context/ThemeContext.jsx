@@ -12,9 +12,9 @@ export function ThemeProvider({ children }) {
   // 预加载字体资源
   useEffect(() => {
     const fontUrls = {
-      jinghua: 'https://pic.oneloved.top/2025-07/songti_1753944378889.ttf',
-      lxgw: 'https://pic.oneloved.top/2025-07/LXGWWenKai-Regular_1753944392267.ttf',
-      kongshan: 'https://pic.oneloved.top/2025-07/kongshan_1753944354149.ttf'
+      jinghua: 'https://pic.lover.nyc.mn/2025-07/songti_1753944378889.ttf',
+      lxgw: 'https://pic.lover.nyc.mn/2025-07/LXGWWenKai-Regular_1753944392267.ttf',
+      kongshan: 'https://pic.lover.nyc.mn/2025-07/kongshan_1753944354149.ttf'
     };
 
     // 创建字体预加载函数
@@ -47,7 +47,7 @@ export function ThemeProvider({ children }) {
     const savedDarkMode = localStorage.getItem('darkMode');
     const savedThemeColor = localStorage.getItem('themeColor');
     const savedFontConfig = localStorage.getItem('fontConfig');
-    
+
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
@@ -75,7 +75,7 @@ export function ThemeProvider({ children }) {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'theme.darkMode' } })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'theme.darkMode' } })); } catch { }
   }, [darkMode]);
 
   useEffect(() => {
@@ -144,7 +144,7 @@ export function ThemeProvider({ children }) {
     } catch (error) {
       console.warn('Invalid color format:', themeColor);
     }
-  try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'theme.color' } })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'theme.color' } })); } catch { }
   }, [themeColor]);
 
   // 监听字体配置变化 - 使用定时器检查localStorage变化
@@ -176,9 +176,9 @@ export function ThemeProvider({ children }) {
   // 应用字体设置
   useEffect(() => {
     const fontUrls = {
-      jinghua: 'https://pic.oneloved.top/2025-07/songti_1753944378889.ttf',
-      lxgw: 'https://pic.oneloved.top/2025-07/LXGWWenKai-Regular_1753944392267.ttf',
-      kongshan: 'https://pic.oneloved.top/2025-07/kongshan_1753944354149.ttf'
+      jinghua: 'https://pic.lover.nyc.mn/2025-07/songti_1753944378889.ttf',
+      lxgw: 'https://pic.lover.nyc.mn/2025-07/LXGWWenKai-Regular_1753944392267.ttf',
+      kongshan: 'https://pic.lover.nyc.mn/2025-07/kongshan_1753944354149.ttf'
     };
 
     // 移除之前的字体样式

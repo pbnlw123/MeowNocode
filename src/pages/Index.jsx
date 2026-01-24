@@ -19,7 +19,7 @@ import { usePasswordAuth } from '@/context/PasswordAuthContext';
 import { addDeletedMemoTombstone } from '@/lib/utils';
 import { toast } from 'sonner';
 
- const Index = () => {
+const Index = () => {
   // State management
   const [memos, setMemos] = useState([]);
   const [newMemo, setNewMemo] = useState('');
@@ -60,7 +60,7 @@ import { toast } from 'sonner';
   const [musicModal, setMusicModal] = useState({
     isOpen: false,
     title: '鲜花',
-    musicUrl: 'https://pic.oneloved.top/2025-08/回春丹 - 鲜花_1755699293512.flac',
+    musicUrl: 'https://pic.lover.nyc.mn/2025-08/回春丹 - 鲜花_1755699293512.flac',
     cover: '/images/xh.jpg',
     author: '回春丹',
     danmakuText: '好听',
@@ -104,13 +104,13 @@ import { toast } from 'sonner';
   // 处理左侧栏鼠标悬停事件（AI 对话或每日回顾打开时禁用）
   useEffect(() => {
     let hoverTimer;
-    
+
     const handleMouseMove = (e) => {
       // 若鼠标位于禁止触发区域（如迷你播放器），不处理侧栏唤起
       if (e.target && (e.target.closest && e.target.closest('.sidebar-hover-block'))) {
         return;
       }
-  if (canvasToolPanelVisible || isAIDialogOpen || isDailyReviewOpen || document.body.getAttribute('data-music-modal-open') === 'true') {
+      if (canvasToolPanelVisible || isAIDialogOpen || isDailyReviewOpen || document.body.getAttribute('data-music-modal-open') === 'true') {
         // 工具面板可见时禁用左侧 hover 触发逻辑
         return;
       }
@@ -152,13 +152,13 @@ import { toast } from 'sonner';
   // 处理右侧栏鼠标悬停事件（AI 对话或每日回顾打开时禁用）
   useEffect(() => {
     let hoverTimer;
-    
+
     const handleMouseMove = (e) => {
       // 若鼠标位于禁止触发区域（如迷你播放器），不处理侧栏唤起
       if (e.target && (e.target.closest && e.target.closest('.sidebar-hover-block'))) {
         return;
       }
-  if (isAIDialogOpen || isDailyReviewOpen || document.body.getAttribute('data-music-modal-open') === 'true') {
+      if (isAIDialogOpen || isDailyReviewOpen || document.body.getAttribute('data-music-modal-open') === 'true') {
         return;
       }
       if (!isRightSidebarPinned) {
@@ -245,8 +245,8 @@ import { toast } from 'sonner';
         const st = JSON.parse(savedCanvasState);
         if (st && st.memoPositions && typeof st.memoPositions === 'object') memoPositions = st.memoPositions;
       }
-    } catch {}
-    
+    } catch { }
+
     if (savedMemos) {
       try {
         const parsedMemos = JSON.parse(savedMemos);
@@ -257,20 +257,20 @@ import { toast } from 'sonner';
           timestamp: memo.timestamp || memo.createdAt || new Date().toISOString(),
           lastModified: memo.lastModified || memo.updatedAt || new Date().toISOString(),
           createdAt: memo.createdAt || memo.timestamp || new Date().toISOString(),
-      updatedAt: memo.updatedAt || memo.lastModified || new Date().toISOString(),
-      backlinks: Array.isArray(memo.backlinks) ? memo.backlinks : [],
-      audioClips: Array.isArray(memo.audioClips) ? memo.audioClips : [],
-      is_public: typeof memo.is_public === 'boolean' ? memo.is_public : false, // 为旧memo设置默认值
-      // 画布位置：优先使用 memo 自身保存的，退回到 canvasState.memoPositions
-      canvasX: (typeof memo.canvasX === 'number' ? memo.canvasX : (memoPositions[memo.id]?.x)),
-      canvasY: (typeof memo.canvasY === 'number' ? memo.canvasY : (memoPositions[memo.id]?.y))
+          updatedAt: memo.updatedAt || memo.lastModified || new Date().toISOString(),
+          backlinks: Array.isArray(memo.backlinks) ? memo.backlinks : [],
+          audioClips: Array.isArray(memo.audioClips) ? memo.audioClips : [],
+          is_public: typeof memo.is_public === 'boolean' ? memo.is_public : false, // 为旧memo设置默认值
+          // 画布位置：优先使用 memo 自身保存的，退回到 canvasState.memoPositions
+          canvasX: (typeof memo.canvasX === 'number' ? memo.canvasX : (memoPositions[memo.id]?.x)),
+          canvasY: (typeof memo.canvasY === 'number' ? memo.canvasY : (memoPositions[memo.id]?.y))
         }));
         setMemos(normalizedMemos);
       } catch (e) {
         console.error('Failed to parse memos from localStorage', e);
       }
     }
-    
+
     if (savedPinned) {
       try {
         setPinnedMemos(JSON.parse(savedPinned));
@@ -283,7 +283,7 @@ import { toast } from 'sonner';
       try {
         const canvasMode = JSON.parse(savedCanvasMode);
         setIsCanvasMode(canvasMode);
-        
+
         // 如果处于画布模式，强制设置侧栏为非固定状态
         if (canvasMode) {
           setIsLeftSidebarPinned(false);
@@ -315,7 +315,7 @@ import { toast } from 'sonner';
         console.error('Failed to parse right sidebar pinned state from localStorage', e);
       }
     }
-    
+
     // 设置应用已加载，避免初始动画
     setTimeout(() => {
       setIsAppLoaded(true);
@@ -336,7 +336,7 @@ import { toast } from 'sonner';
             const st = JSON.parse(savedCanvasState);
             if (st && st.memoPositions && typeof st.memoPositions === 'object') memoPositions = st.memoPositions;
           }
-        } catch {}
+        } catch { }
         if (savedMemos) {
           const parsedMemos = JSON.parse(savedMemos);
           const normalizedMemos = parsedMemos.map(memo => ({
@@ -364,7 +364,7 @@ import { toast } from 'sonner';
             setPinnedMemos(parsedPinned);
           }
         }
-      } catch {}
+      } catch { }
     };
 
     const onDataChanged = (e) => {
@@ -403,9 +403,9 @@ import { toast } from 'sonner';
       const prev = raw ? JSON.parse(raw) : {};
       const next = { ...prev, memoPositions: positions };
       localStorage.setItem('canvasState', JSON.stringify(next));
-  // 通知全局数据变更（仅位置变化也会触发同步）
-  try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'canvas.memoPositions' } })); } catch {}
-    } catch {}
+      // 通知全局数据变更（仅位置变化也会触发同步）
+      try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'canvas.memoPositions' } })); } catch { }
+    } catch { }
   }, [memos, pinnedMemos]);
 
   // 保存数据到localStorage - 优化：减少不必要的同步触发
@@ -432,13 +432,13 @@ import { toast } from 'sonner';
   // 保存画布模式状态到localStorage
   useEffect(() => {
     localStorage.setItem('isCanvasMode', JSON.stringify(isCanvasMode));
-    try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'canvas.mode' } })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'canvas.mode' } })); } catch { }
   }, [isCanvasMode]);
 
   // 首次加载完成后强制发一个变更事件，便于自动同步在启动时感知
   useEffect(() => {
     if (!isInitialLoad) {
-      try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'startup' } })); } catch {}
+      try { window.dispatchEvent(new CustomEvent('app:dataChanged', { detail: { part: 'startup' } })); } catch { }
     }
   }, [isInitialLoad]);
 
@@ -451,7 +451,7 @@ import { toast } from 'sonner';
         const t = setTimeout(() => setIsTutorialOpen(true), 300);
         return () => clearTimeout(t);
       }
-    } catch {}
+    } catch { }
   }, []);
 
   // 添加新memo
@@ -510,7 +510,7 @@ import { toast } from 'sonner';
       window.dispatchEvent(new CustomEvent('app:dataChanged', {
         detail: { part: 'memo.add', priority: 'high', id: newId }
       }));
-    } catch {}
+    } catch { }
   };
 
   // 更新热力图数据
@@ -636,17 +636,17 @@ import { toast } from 'sonner';
           window.dispatchEvent(new CustomEvent('app:dataChanged', {
             detail: { part: 'memo.update', priority: 'high', id: memoId }
           }));
-        } catch {}
+        } catch { }
         break;
-  case 'pin':
+      case 'pin':
         const memoToPin = memos.find(memo => memo.id === memoId);
         if (memoToPin && !pinnedMemos.some(p => p.id === memoId)) {
           const pinnedMemo = {
             ...memoToPin,
             isPinned: true,
-    pinnedAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastModified: new Date().toISOString()
+            pinnedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastModified: new Date().toISOString()
           };
           setPinnedMemos([pinnedMemo, ...pinnedMemos]);
           setMemos(memos.filter(memo => memo.id !== memoId));
@@ -676,19 +676,19 @@ import { toast } from 'sonner';
         }
         break;
       case 'delete':
-  // 先移除被删 memo
-  const nextMemos = memos.filter(memo => memo.id !== memoId).map(m => ({
-    ...m,
-    backlinks: Array.isArray(m.backlinks) ? m.backlinks.filter(id => id !== memoId) : []
-  }));
-  const nextPinned = pinnedMemos.filter(memo => memo.id !== memoId).map(m => ({
-    ...m,
-    backlinks: Array.isArray(m.backlinks) ? m.backlinks.filter(id => id !== memoId) : []
-  }));
-  setMemos(nextMemos);
-  setPinnedMemos(nextPinned);
-  // 记录删除墓碑用于云端删除
-  addDeletedMemoTombstone(memoId);
+        // 先移除被删 memo
+        const nextMemos = memos.filter(memo => memo.id !== memoId).map(m => ({
+          ...m,
+          backlinks: Array.isArray(m.backlinks) ? m.backlinks.filter(id => id !== memoId) : []
+        }));
+        const nextPinned = pinnedMemos.filter(memo => memo.id !== memoId).map(m => ({
+          ...m,
+          backlinks: Array.isArray(m.backlinks) ? m.backlinks.filter(id => id !== memoId) : []
+        }));
+        setMemos(nextMemos);
+        setPinnedMemos(nextPinned);
+        // 记录删除墓碑用于云端删除
+        addDeletedMemoTombstone(memoId);
         break;
       default:
         break;
@@ -888,7 +888,7 @@ import { toast } from 'sonner';
   const handleCanvasModeToggle = useCallback(() => {
     const newCanvasMode = !isCanvasMode;
     setIsCanvasMode(newCanvasMode);
-    
+
     // 进入画布模式时自动取消固定侧栏
     if (newCanvasMode) {
       setIsLeftSidebarPinned(false);
@@ -906,7 +906,7 @@ import { toast } from 'sonner';
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
         return;
       }
-      
+
       // 如果正在录制快捷键，不触发快捷键功能
       if (e.target.closest('.shortcut-recording')) {
         return;
@@ -919,7 +919,7 @@ import { toast } from 'sonner';
         const ctrlKey = parts.includes('Ctrl');
         const altKey = parts.includes('Alt');
         const shiftKey = parts.includes('Shift');
-        
+
         // 处理特殊键名的映射
         const keyMap = {
           'Space': ' ',
@@ -937,9 +937,9 @@ import { toast } from 'sonner';
           'Home': 'Home',
           'End': 'End'
         };
-        
+
         const mappedKey = keyMap[key] || key;
-        
+
         return { key: mappedKey, ctrlKey, altKey, shiftKey };
       };
 
@@ -947,7 +947,7 @@ import { toast } from 'sonner';
       const checkShortcut = (shortcut) => {
         const { key, ctrlKey, altKey, shiftKey } = parseShortcut(shortcut);
         const eCtrlKey = e.ctrlKey || e.metaKey;
-        
+
         return (
           e.key === key &&
           eCtrlKey === ctrlKey &&
@@ -1039,12 +1039,12 @@ import { toast } from 'sonner';
 
     try {
       toast.loading('AI正在续写中...', { id: 'ai-continue' });
-      
+
       // 确保 baseUrl 以 / 结尾，如果没有则添加
       const baseUrl = aiConfig.baseUrl.endsWith('/') ? aiConfig.baseUrl : aiConfig.baseUrl + '/';
       const url = `${baseUrl}chat/completions`;
-      
-            
+
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -1079,21 +1079,21 @@ import { toast } from 'sonner';
       }
 
       const data = await response.json();
-      
+
       // 检查响应数据结构
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         console.error('AI响应结构异常:', data);
         toast.error('AI响应结构异常', { id: 'ai-continue' });
         return;
       }
-      
+
       const continuedText = data.choices[0].message.content;
-      
+
       // 确保续写内容不为空且是字符串
       if (continuedText && typeof continuedText === 'string' && continuedText.trim()) {
         // 去除可能的换行符前缀和多余空格
         const trimmedContinuedText = continuedText.trim();
-        
+
         // 将续写内容追加到原文后面，添加适当的连接
         const connector = newMemo.endsWith('。') || newMemo.endsWith('！') || newMemo.endsWith('？') ? ' ' : '';
         setNewMemo(prev => prev + connector + trimmedContinuedText);
@@ -1122,12 +1122,12 @@ import { toast } from 'sonner';
 
     try {
       toast.loading('AI正在优化中...', { id: 'ai-optimize' });
-      
+
       // 确保 baseUrl 以 / 结尾，如果没有则添加
       const baseUrl = aiConfig.baseUrl.endsWith('/') ? aiConfig.baseUrl : aiConfig.baseUrl + '/';
       const url = `${baseUrl}chat/completions`;
-      
-            
+
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -1162,21 +1162,21 @@ import { toast } from 'sonner';
       }
 
       const data = await response.json();
-      
+
       // 检查响应数据结构
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         console.error('AI响应结构异常:', data);
         toast.error('AI响应结构异常', { id: 'ai-optimize' });
         return;
       }
-      
+
       const optimizedText = data.choices[0].message.content;
-      
+
       // 确保优化内容不为空且是字符串
       if (optimizedText && typeof optimizedText === 'string' && optimizedText.trim()) {
         // 去除可能的换行符前缀和后缀
         const trimmedOptimizedText = optimizedText.trim();
-        
+
         // 将优化内容替换原文
         setNewMemo(trimmedOptimizedText);
         toast.success('AI优化完成', { id: 'ai-optimize' });
@@ -1228,12 +1228,12 @@ import { toast } from 'sonner';
 
   const handleCanvasUpdateMemo = (id, updates) => {
     // 更新memos
-    const updatedMemos = memos.map(memo => 
+    const updatedMemos = memos.map(memo =>
       memo.id === id ? { ...memo, ...updates } : memo
     );
-    
+
     // 更新pinnedMemos
-    const updatedPinned = pinnedMemos.map(memo => 
+    const updatedPinned = pinnedMemos.map(memo =>
       memo.id === id ? { ...memo, ...updates } : memo
     );
 
@@ -1244,7 +1244,7 @@ import { toast } from 'sonner';
   const handleCanvasDeleteMemo = (id) => {
     setMemos(memos.filter(memo => memo.id !== id));
     setPinnedMemos(pinnedMemos.filter(memo => memo.id !== id));
-  addDeletedMemoTombstone(id);
+    addDeletedMemoTombstone(id);
   };
 
   const handleCanvasTogglePin = (id) => {
@@ -1322,7 +1322,7 @@ import { toast } from 'sonner';
     if (!backgroundConfig.useRandom || backgroundConfig.imageUrl) return;
     if (!url) return;
     updateBackgroundConfig({ imageUrl: url, useRandom: false });
-    try { toast.success('已收藏并设置为背景'); } catch {}
+    try { toast.success('已收藏并设置为背景'); } catch { }
   };
 
   return (
@@ -1330,7 +1330,7 @@ import { toast } from 'sonner';
       className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row lg:overflow-hidden lg:h-screen relative"
     >
       {/* 背景图片层 - 亮度滤镜只应用于此层 */}
-  {effectiveBgUrl && (
+      {effectiveBgUrl && (
         <div
           className="absolute inset-0 z-0"
           style={backgroundStyle}
@@ -1338,7 +1338,7 @@ import { toast } from 'sonner';
       )}
 
       {/* 背景遮罩层 */}
-  {effectiveBgUrl && (
+      {effectiveBgUrl && (
         <div
           className="absolute inset-0 z-0"
           style={overlayStyle}
@@ -1347,7 +1347,7 @@ import { toast } from 'sonner';
 
       {/* 主内容区域 */}
       <div className="relative z-10 min-h-screen lg:h-full w-full flex flex-col lg:flex-row">
-        
+
         {/* 左侧热力图区域 */}
         <LeftSidebar
           heatmapData={heatmapData}
@@ -1390,7 +1390,7 @@ import { toast } from 'sonner';
             setIsRightSidebarHidden={setIsRightSidebarHidden}
             isLeftSidebarPinned={isLeftSidebarPinned}
             isRightSidebarPinned={isRightSidebarPinned}
-            
+
             // Data
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -1404,12 +1404,12 @@ import { toast } from 'sonner';
             activeTag={activeTag}
             activeDate={activeDate} // 传递日期筛选状态
             showScrollToTop={showScrollToTop}
-            
+
             // Refs
             searchInputRef={searchInputRef}
             memosContainerRef={memosContainerRef}
             menuRefs={menuRefs}
-            
+
             // Callbacks
             onMobileMenuOpen={() => setIsMobileSidebarOpen(true)}
             onAddMemo={addMemo}
@@ -1435,16 +1435,16 @@ import { toast } from 'sonner';
             pendingNewAudioClips={pendingNewAudioClips}
             onRemoveAudioClip={handleRemoveAudioClip}
             onAddAudioClip={handleAddAudioClip}
-              onOpenMusic={() => {
-                if (musicConfig?.enabled) setMusicModal((m) => ({ ...m, isOpen: true }));
-              }}
-              musicEnabled={!!musicConfig?.enabled}
-              onOpenMusicSearch={(q) => {
-                setMusicSearchKeyword(q);
-                setMusicSearchOpen(true);
-              }}
-              // 认证状态
-              isAuthenticated={isAuthenticated}
+            onOpenMusic={() => {
+              if (musicConfig?.enabled) setMusicModal((m) => ({ ...m, isOpen: true }));
+            }}
+            musicEnabled={!!musicConfig?.enabled}
+            onOpenMusicSearch={(q) => {
+              setMusicSearchKeyword(q);
+              setMusicSearchOpen(true);
+            }}
+            // 认证状态
+            isAuthenticated={isAuthenticated}
           />
         )}
 
@@ -1452,7 +1452,7 @@ import { toast } from 'sonner';
         <RightSidebar
           memos={[...memos, ...pinnedMemos]}
           activeTag={activeTag}
-        setActiveTag={(tag) => { setActiveTag(tag); setActiveDate(null); }}
+          setActiveTag={(tag) => { setActiveTag(tag); setActiveDate(null); }}
           isRightSidebarHidden={isRightSidebarHidden}
           setIsRightSidebarHidden={setIsRightSidebarHidden}
           isRightSidebarPinned={isRightSidebarPinned}
@@ -1475,14 +1475,14 @@ import { toast } from 'sonner';
         onSettingsOpen={() => setIsSettingsOpen(true)}
         onDateClick={handleDateClick}
         isAuthenticated={isAuthenticated}
-  onOpenMusic={() => { if (musicConfig?.enabled) setMusicModal((m) => ({ ...m, isOpen: true })); }}
+        onOpenMusic={() => { if (musicConfig?.enabled) setMusicModal((m) => ({ ...m, isOpen: true })); }}
       />
 
       {/* 设置卡片 */}
       <SettingsCard
         isOpen={isSettingsOpen}
-  onClose={() => setIsSettingsOpen(false)}
-  onOpenTutorial={() => setIsTutorialOpen(true)}
+        onClose={() => setIsSettingsOpen(false)}
+        onOpenTutorial={() => setIsTutorialOpen(true)}
       />
 
       {/* 分享图对话框 */}

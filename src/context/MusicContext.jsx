@@ -44,17 +44,17 @@ export function MusicProvider({ children }) {
   const regenerateLocalUrls = (songs) => {
     return songs.map(song => {
       const updatedSong = { ...song };
-      
+
       // 处理音频文件（仅S3文件）
       if (song.audioFile && song.audioFile.storageType === 's3' && song.audioFile.url) {
         updatedSong.musicUrl = song.audioFile.url;
       }
-      
+
       // 处理图片文件（仅S3文件）
       if (song.imageFile && song.imageFile.storageType === 's3' && song.imageFile.url) {
         updatedSong.coverUrl = song.imageFile.url;
       }
-      
+
       return updatedSong;
     });
   };
@@ -66,7 +66,7 @@ export function MusicProvider({ children }) {
         id: 'builtin-flower',
         title: '鲜花',
         artist: '回春丹',
-        musicUrl: 'https://pic.oneloved.top/2025-08/回春丹 - 鲜花_1755699293512.flac',
+        musicUrl: 'https://pic.lover.nyc.mn/2025-08/回春丹 - 鲜花_1755699293512.flac',
         coverUrl: '/images/xh.jpg',
         lyrics: 'builtin',
         isBuiltin: true
@@ -87,14 +87,14 @@ export function MusicProvider({ children }) {
   useEffect(() => {
     const newPlaylist = getMusicList();
     setPlaylist(newPlaylist);
-    
+
     // 如果播放列表为空，重置状态
     if (newPlaylist.length === 0) {
       setCurrentSongIndex(0);
       setIsPlaying(false);
       return;
     }
-    
+
     // 尝试在首次加载时恢复上次播放（按 URL 回退到 标题+歌手）
     if (!restoredRef.current && newPlaylist.length > 0) {
       try {
@@ -112,7 +112,7 @@ export function MusicProvider({ children }) {
           }
           if (idx >= 0) setCurrentSongIndex(idx);
         }
-      } catch {}
+      } catch { }
       restoredRef.current = true;
     } else {
       // 若当前播放的歌曲不在新列表中，重置到第一首
@@ -147,7 +147,7 @@ export function MusicProvider({ children }) {
               coverUrl: s.coverUrl,
               lyrics: s.lyrics || ''
             }));
-          } catch {}
+          } catch { }
           try {
             window.dispatchEvent(new CustomEvent('music:pause-others'));
             window.dispatchEvent(new CustomEvent('music:play', {
@@ -203,16 +203,16 @@ export function MusicProvider({ children }) {
           coverUrl: s.coverUrl,
           lyrics: s.lyrics || ''
         }));
-      } catch {}
-  // 请求迷你播放器如有需要可自行在 loadedmetadata 恢复进度
-      
+      } catch { }
+      // 请求迷你播放器如有需要可自行在 loadedmetadata 恢复进度
+
       // 通知全局播放器切换歌曲
       try {
         // 先暂停其他播放器
         window.dispatchEvent(new CustomEvent('music:pause-others'));
         // 然后开始播放
         window.dispatchEvent(new CustomEvent('music:play', {
-          detail: { 
+          detail: {
             title: playlist[index].title,
             artist: playlist[index].artist,
             musicUrl: playlist[index].musicUrl,
@@ -254,7 +254,7 @@ export function MusicProvider({ children }) {
             lyrics: s.lyrics || ''
           }));
         }
-      } catch {}
+      } catch { }
     }
     try {
       window.dispatchEvent(new CustomEvent(isPlaying ? 'music:pause' : 'music:play'));
@@ -279,7 +279,7 @@ export function MusicProvider({ children }) {
       return;
     }
     try {
-  const next = [...(musicConfig?.customSongs || []), {
+      const next = [...(musicConfig?.customSongs || []), {
         title: song.title || '未知标题',
         artist: song.artist || '未知艺术家',
         musicUrl: song.musicUrl,
@@ -288,7 +288,7 @@ export function MusicProvider({ children }) {
         ...(song.audioFile ? { audioFile: song.audioFile } : {}),
         ...(song.imageFile ? { imageFile: song.imageFile } : {})
       }];
-  pendingPlayRef.current = { url: song.musicUrl, title: song.title, artist: song.artist };
+      pendingPlayRef.current = { url: song.musicUrl, title: song.title, artist: song.artist };
       updateMusicConfig({ customSongs: next, lastModified: new Date().toISOString() });
     } catch (e) {
       console.error('Failed to add external song:', e);
@@ -346,10 +346,10 @@ export function MusicProvider({ children }) {
     try {
       // 删除关联存储文件（若有）
       if (song.audioFile) {
-        try { await fileStorageService.deleteFile(song.audioFile); } catch {}
+        try { await fileStorageService.deleteFile(song.audioFile); } catch { }
       }
       if (song.imageFile) {
-        try { await fileStorageService.deleteFile(song.imageFile); } catch {}
+        try { await fileStorageService.deleteFile(song.imageFile); } catch { }
       }
 
       // 过滤掉该歌曲
@@ -361,7 +361,7 @@ export function MusicProvider({ children }) {
       // 若正在播放被删除的歌曲，先暂停
       if (index === currentSongIndex) {
         setIsPlaying(false);
-        try { window.dispatchEvent(new CustomEvent('music:pause')); } catch {}
+        try { window.dispatchEvent(new CustomEvent('music:pause')); } catch { }
       } else if (index < currentSongIndex) {
         // 往前删除会影响索引
         setCurrentSongIndex(Math.max(0, currentSongIndex - 1));
@@ -387,9 +387,9 @@ export function MusicProvider({ children }) {
       setPlayingState,
       getCurrentSong,
       volume,
-  setVolume: setMusicVolume,
-  playExternalSong,
-  deleteSongAtIndex
+      setVolume: setMusicVolume,
+      playExternalSong,
+      deleteSongAtIndex
     }}>
       {children}
     </MusicContext.Provider>

@@ -1,5 +1,5 @@
 # Meow App
-![meow.png](https://pic.oneloved.top/2025-08/meow_1754197450654.png)
+![meow.png](https://pic.lover.nyc.mn/2025-08/meow_1754197450654.png)
 Meow App 是一个简洁的笔记应用，支持本地存储和云端同步。你可以使用Cloudflare D1作为云端数据库。
 
 ## 功能亮点：
