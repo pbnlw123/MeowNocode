@@ -1,6 +1,6 @@
 // Cloudflare Worker for D1 Database API
 // 这个Worker提供了与前端应用交互的API接口
-// 新增功能：Memos 分享链接生成与公开访问（参考 index(2).js 实现）
+// 新增功能：Memos 分享链接生成与公开访问（使用KV存储映射，前端SPA处理分享页面）
 
 export default {
   async fetch(request, env, ctx) {
@@ -19,16 +19,7 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
     
-    // 处理分享页面重定向 /share/<publicId> -> /share.html?id=<publicId>
-    const shareMatch = path.match(/^\/share\/([a-zA-Z0-9-]+)$/);
-    if (shareMatch) {
-      const publicId = shareMatch[1];
-      const targetUrl = new URL('/share.html', url.origin);
-      targetUrl.searchParams.set('id', publicId);
-      return Response.redirect(targetUrl.toString(), 302);
-    }
-    
-    // 只处理API请求，其他请求交给静态文件处理
+    // 只处理API请求，其他请求交给静态文件处理（Pages SPA模式）
     if (path.startsWith('/api/')) {
       try {
         // ---------- 新增：公开获取分享的 Memo ----------
@@ -41,7 +32,7 @@ export default {
         // ---------- 新增：生成或取消分享链接 ----------
         const shareMemoMatch = path.match(/^\/api\/memos\/([^\/]+)\/share$/);
         if (shareMemoMatch) {
-          const memoId = shareMemoMatch[1]; // 前端 memo_id
+          const memoId = shareMemoMatch[1]; // 前端生成的 memo_id (UUID)
           if (request.method === 'POST') {
             return handleShareMemo(request, memoId, env, corsHeaders);
           } else if (request.method === 'DELETE') {
@@ -74,15 +65,17 @@ export default {
       }
     }
     
-    // 对于非API请求，返回null让Cloudflare Pages处理静态文件
+    // 对于非API请求，返回null让Cloudflare Pages处理静态文件（包括前端路由）
     return null;
   }
 };
 
-// ==================== 原有函数（保持不变）====================
+// 健康检查
 async function handleHealthCheck(env, headers) {
   try {
+    // 检查数据库连接
     await env.DB.prepare('SELECT 1').first();
+    
     return new Response(JSON.stringify({ 
       status: 'ok', 
       message: 'D1数据库连接正常',
@@ -102,8 +95,10 @@ async function handleHealthCheck(env, headers) {
   }
 }
 
+// 初始化数据库
 async function handleInitDatabase(env, headers) {
   try {
+    // 创建memos表
     await env.DB.exec(`
       CREATE TABLE IF NOT EXISTS memos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -117,6 +112,7 @@ async function handleInitDatabase(env, headers) {
       )
     `);
 
+    // 创建user_settings表
     await env.DB.exec(`
       CREATE TABLE IF NOT EXISTS user_settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -132,6 +128,7 @@ async function handleInitDatabase(env, headers) {
       )
     `);
 
+    // 创建索引
     await env.DB.exec('CREATE INDEX IF NOT EXISTS idx_memos_user_id ON memos(user_id)');
     await env.DB.exec('CREATE INDEX IF NOT EXISTS idx_memos_created_at ON memos(created_at)');
     await env.DB.exec('CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id)');
@@ -154,6 +151,7 @@ async function handleInitDatabase(env, headers) {
   }
 }
 
+// 处理memos相关的请求
 async function handleMemos(request, env, headers) {
   const url = new URL(request.url);
   const method = request.method;
@@ -168,6 +166,7 @@ async function handleMemos(request, env, headers) {
 
   try {
     if (method === 'GET') {
+      // 获取用户的所有memos
       const { results } = await env.DB
         .prepare('SELECT * FROM memos WHERE user_id = ? ORDER BY created_at DESC')
         .bind(userId)
@@ -177,6 +176,7 @@ async function handleMemos(request, env, headers) {
         headers: { ...headers, 'Content-Type': 'application/json' }
       });
     } else if (method === 'POST') {
+      // 创建或更新memo
       const body = await request.json();
       const { memo_id, content, tags, created_at, updated_at } = body;
       
@@ -187,17 +187,20 @@ async function handleMemos(request, env, headers) {
         });
       }
       
+      // 检查memo是否已存在
       const existingMemo = await env.DB
         .prepare('SELECT * FROM memos WHERE memo_id = ? AND user_id = ?')
         .bind(memo_id, userId)
         .first();
       
       if (existingMemo) {
+        // 更新现有memo
         await env.DB
           .prepare('UPDATE memos SET content = ?, tags = ?, updated_at = ? WHERE memo_id = ? AND user_id = ?')
           .bind(content, JSON.stringify(tags || []), updated_at || new Date().toISOString(), memo_id, userId)
           .run();
       } else {
+        // 插入新memo
         await env.DB
           .prepare('INSERT INTO memos (memo_id, user_id, content, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
           .bind(memo_id, userId, content, JSON.stringify(tags || []), created_at || new Date().toISOString(), updated_at || new Date().toISOString())
@@ -208,6 +211,7 @@ async function handleMemos(request, env, headers) {
         headers: { ...headers, 'Content-Type': 'application/json' }
       });
     } else if (method === 'DELETE') {
+      // 删除memo
       const memoId = url.searchParams.get('memoId');
       
       if (!memoId) {
@@ -243,6 +247,7 @@ async function handleMemos(request, env, headers) {
   }
 }
 
+// 处理用户设置相关的请求
 async function handleSettings(request, env, headers) {
   const url = new URL(request.url);
   const method = request.method;
@@ -257,6 +262,7 @@ async function handleSettings(request, env, headers) {
 
   try {
     if (method === 'GET') {
+      // 获取用户设置
       const settings = await env.DB
         .prepare('SELECT * FROM user_settings WHERE user_id = ?')
         .bind(userId)
@@ -266,15 +272,18 @@ async function handleSettings(request, env, headers) {
         headers: { ...headers, 'Content-Type': 'application/json' }
       });
     } else if (method === 'POST') {
+      // 创建或更新用户设置
       const body = await request.json();
       const { pinned_memos, theme_color, dark_mode, hitokoto_config, font_config, background_config } = body;
       
+      // 检查用户设置是否已存在
       const existingSettings = await env.DB
         .prepare('SELECT * FROM user_settings WHERE user_id = ?')
         .bind(userId)
         .first();
       
       if (existingSettings) {
+        // 更新现有设置
         await env.DB
           .prepare('UPDATE user_settings SET pinned_memos = ?, theme_color = ?, dark_mode = ?, hitokoto_config = ?, font_config = ?, background_config = ?, updated_at = ? WHERE user_id = ?')
           .bind(
@@ -289,6 +298,7 @@ async function handleSettings(request, env, headers) {
           )
           .run();
       } else {
+        // 插入新设置
         await env.DB
           .prepare('INSERT INTO user_settings (user_id, pinned_memos, theme_color, dark_mode, hitokoto_config, font_config, background_config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
           .bind(
